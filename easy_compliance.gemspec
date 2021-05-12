@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Ruby toolkit for https://www.easycompliance.de'
   spec.homepage      = 'https://github.com/betterplace/easy_compliance'
-  spec.license       = 'MIT'
+  spec.license       = 'Apache-2.0'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.4.0')
 
   spec.files         = `git ls-files`.split($/)
