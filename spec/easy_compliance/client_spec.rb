@@ -31,6 +31,13 @@ describe EasyCompliance::Client do
       expect { client.post(method: 2) }.to raise_error(client::Error, /Socket/)
     end
 
+    it 'raises if there is any OpenSSL::OpenSSLError' do
+      expect(Excon).to receive(:post)
+        .with('url', body: 'method=2&api_key=key', headers: anything)
+        .and_raise(OpenSSL::SSL::SSLErrorWaitReadable.new)
+      expect { client.post(method: 2) }.to raise_error(client::Error, /SSLError/)
+    end
+
     it 'raises if api_key is not set' do
       EasyCompliance.api_key = nil
       expect { client.post(method: 2) }.to raise_error(client::Error, /api_key/)

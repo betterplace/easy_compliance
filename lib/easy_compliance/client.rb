@@ -1,4 +1,5 @@
 require 'excon'
+require 'openssl'
 
 module EasyCompliance
   # client for https://easycompliance.de/schnittstellen/api/
@@ -40,7 +41,7 @@ module EasyCompliance
       res.status < 300 or raise Error, "#{res.status}: #{res.body}"
 
       EasyCompliance::Result.new(status: res.status, body: res.body)
-    rescue Excon::Error => e
+    rescue Excon::Error, OpenSSL::OpenSSLError => e
       raise Error, "Network error: #{e.class.name} - #{e.message}"
     end
   end
