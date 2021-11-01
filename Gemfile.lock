@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    easy_compliance (1.0.0)
+    easy_compliance (1.0.1)
       excon
 
 GEM
