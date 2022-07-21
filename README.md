@@ -26,8 +26,18 @@ end
 # app/jobs/compliance_job.rb
 class ComplianceJob
   def perform(record, value)
-    production_env? &&
-      EasyCompliance::Client.submit(record: record, value: value)
+    return unless production_env?
+
+    check = EasyCompliance::Client.submit(record: record, value: value)
+    check.hit?   # true/false
+
+    check.status # http response status e.g. 200
+    check.body   # http response body
   end
 end
 ```
+
+## License
+
+`EasyCompliance` is licensed under the [Apache 2.0 license](LICENSE.txt) and
+Copyright 2021,2022 [betterplace / gut.org gAG](https://gut.org).
