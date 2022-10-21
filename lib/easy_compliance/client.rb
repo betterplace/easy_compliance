@@ -36,8 +36,6 @@ module EasyCompliance
     def post(**body)
       url = EasyCompliance.api_url or raise Error, "must set api_url"
       body[:api_key] = EasyCompliance.api_key or raise Error, "must set api_key"
-
-
       res = Excon.post(
         url,
         body: URI.encode_www_form(body),
