@@ -10,7 +10,14 @@ describe EasyCompliance::Client do
   describe '#post' do
     it 'posts to the API URL and returns an EasyCompliance::Result' do
       expect(Excon).to receive(:post)
-        .with('url', body: 'method=2&api_key=key', headers: anything)
+        .with(
+          'url',
+          body: 'method=2&api_key=key',
+          headers: anything,
+          idempotent: true,
+          retry_limit: 3,
+          retry_interval: 5
+        )
         .and_return(double(body: '{}', status: 200))
       result = client.post(method: 2)
       expect(result).to be_an EasyCompliance::Result
@@ -19,21 +26,42 @@ describe EasyCompliance::Client do
 
     it 'raises if the API returned a bad status code' do
       expect(Excon).to receive(:post)
-        .with('url', body: 'method=2&api_key=key', headers: anything)
+        .with(
+          'url',
+          body: 'method=2&api_key=key',
+          headers: anything,
+          idempotent: true,
+          retry_limit: 3,
+          retry_interval: 5
+        )
         .and_return(double(body: '{}', status: 500))
       expect { client.post(method: 2) }.to raise_error(client::Error, /500/)
     end
 
     it 'raises if the connection failed' do
       expect(Excon).to receive(:post)
-        .with('url', body: 'method=2&api_key=key', headers: anything)
+        .with(
+          'url',
+          body: 'method=2&api_key=key',
+          headers: anything,
+          idempotent: true,
+          retry_limit: 3,
+          retry_interval: 5
+        )
         .and_raise(Excon::Errors::SocketError.new)
       expect { client.post(method: 2) }.to raise_error(client::Error, /Socket/)
     end
 
     it 'raises if there is any OpenSSL::OpenSSLError' do
       expect(Excon).to receive(:post)
-        .with('url', body: 'method=2&api_key=key', headers: anything)
+        .with(
+          'url',
+          body: 'method=2&api_key=key',
+          headers: anything,
+          idempotent: true,
+          retry_limit: 3,
+          retry_interval: 5
+        )
         .and_raise(OpenSSL::SSL::SSLErrorWaitReadable.new)
       expect { client.post(method: 2) }.to raise_error(client::Error, /SSLError/)
     end

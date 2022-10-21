@@ -37,7 +37,15 @@ module EasyCompliance
       url = EasyCompliance.api_url or raise Error, "must set api_url"
       body[:api_key] = EasyCompliance.api_key or raise Error, "must set api_key"
 
-      res = Excon.post(url, body: URI.encode_www_form(body), headers: HEADERS)
+
+      res = Excon.post(
+        url,
+        body: URI.encode_www_form(body),
+        headers: HEADERS,
+        idempotent: true,
+        retry_limit: 3,
+        retry_interval: 5
+      )
       res.status < 300 or raise Error, "#{res.status}: #{res.body}"
 
       EasyCompliance::Result.new(status: res.status, body: res.body)
