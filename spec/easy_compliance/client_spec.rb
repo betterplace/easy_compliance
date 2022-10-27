@@ -5,6 +5,8 @@ describe EasyCompliance::Client do
   before do
     EasyCompliance.api_key = 'key'
     EasyCompliance.api_url = 'url'
+    EasyCompliance.retry_limit = nil
+    EasyCompliance.retry_interval = nil
   end
 
   describe '#post' do
@@ -74,6 +76,53 @@ describe EasyCompliance::Client do
     it 'raises if api_url is not set' do
       EasyCompliance.api_url = nil
       expect { client.post(method: 2) }.to raise_error(client::Error, /api_url/)
+    end
+
+    it 'uses a default value of 3 for retry_limit unless it is set' do
+      expect(Excon).to receive(:post).with(
+        'url',
+        body: 'method=2&api_key=key',
+        headers: anything,
+        idempotent: true,
+        retry_limit: 3,
+        retry_interval: 5
+      ).and_return(double(body: '{}', status: 200))
+      client.post(method: 2)
+
+      EasyCompliance.retry_limit = 0
+      expect(Excon).to receive(:post).with(
+        'url',
+        body: 'method=2&api_key=key',
+        headers: anything,
+        idempotent: true,
+        retry_limit: 0,
+        retry_interval: 5
+      ).and_return(double(body: '{}', status: 200))
+      client.post(method: 2)
+    end
+
+    it 'uses a default value of 5 for retry_interval unless it is set' do
+      EasyCompliance.retry_interval = nil
+      expect(Excon).to receive(:post).with(
+        'url',
+        body: 'method=2&api_key=key',
+        headers: anything,
+        idempotent: true,
+        retry_limit: 3,
+        retry_interval: 5
+      ).and_return(double(body: '{}', status: 200))
+      client.post(method: 2)
+
+      EasyCompliance.retry_interval = 0
+      expect(Excon).to receive(:post).with(
+        'url',
+        body: 'method=2&api_key=key',
+        headers: anything,
+        idempotent: true,
+        retry_limit: 3,
+        retry_interval: 0
+      ).and_return(double(body: '{}', status: 200))
+      client.post(method: 2)
     end
   end
 end

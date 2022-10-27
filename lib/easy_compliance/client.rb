@@ -29,26 +29,37 @@ module EasyCompliance
     end
 
     HEADERS = {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/x-www-form-urlencoded'
     }
 
     # @return [ EasyCompliance::Result ]
     def post(**body)
-      url = EasyCompliance.api_url or raise Error, "must set api_url"
-      body[:api_key] = EasyCompliance.api_key or raise Error, "must set api_key"
+      body[:api_key] = EasyCompliance.api_key or raise Error, 'must set api_key'
       res = Excon.post(
-        url,
+        api_url,
         body: URI.encode_www_form(body),
         headers: HEADERS,
         idempotent: true,
-        retry_limit: 3,
-        retry_interval: 5
+        retry_limit: retry_limit,
+        retry_interval: retry_interval
       )
       res.status < 300 or raise Error, "#{res.status}: #{res.body}"
 
       EasyCompliance::Result.new(status: res.status, body: res.body)
     rescue Excon::Error, OpenSSL::OpenSSLError => e
       raise Error, "Network error: #{e.class.name} - #{e.message}"
+    end
+
+    def retry_limit
+      EasyCompliance.retry_limit || 3
+    end
+
+    def retry_interval
+      EasyCompliance.retry_interval || 5
+    end
+
+    def api_url
+      EasyCompliance.api_url || raise(Error, 'must set api_url')
     end
   end
 end

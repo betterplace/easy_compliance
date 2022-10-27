@@ -4,7 +4,7 @@ module EasyCompliance
   class Error < StandardError; end
 
   class << self
-    attr_accessor :api_key, :api_url, :app_name
+    attr_accessor :api_key, :api_url, :app_name, :retry_limit, :retry_interval
   end
 end
 
