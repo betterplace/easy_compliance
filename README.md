@@ -9,12 +9,19 @@ Ruby toolkit for https://www.easycompliance.de
 Use `EasyCompliance::Ref` to build refs for the records.
 
 ### Keeping data in sync
+When a request fails EasyCompliance will consider the request idempotent and by default retries 3 times with a delay of 5 seconds in between.
+You can adjust this to fit your needs.
 
 ```ruby
 # config/initializers/easy_compliance.rb
+# required
 EasyCompliance.api_key  = 'my_key'
 EasyCompliance.api_url  = 'https://example.com'
 EasyCompliance.app_name = 'my_app'
+
+# optional
+EasyCompliance.retry_limit     = 3 # Max number of retries (this is the default)
+EasyCompliance.retry_interval  = 5 # Delay between retries in seconds (this is the default)
 
 # app/models/my_record.rb
 class MyRecord < ActiveRecord::Base
